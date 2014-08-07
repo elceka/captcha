@@ -96,7 +96,19 @@ class Captcha {
         {
             $color_cols = explode(',', static::asset('colors'));
             $fg = imagecolorallocate($new_image, trim($color_cols[0]), trim($color_cols[1]), trim($color_cols[2]));
-            imagettftext($new_image, static::asset('fontsizes'), rand(-10, 15), 10 + ($i * static::$config['space']), rand(static::$config['height'] - 10, static::$config['height'] - 5), $fg, static::asset('fonts'), static::$char[$i]);
+            imagettftext(
+                $new_image,
+                static::asset('fontsizes'),
+                rand(-25, 25),
+                (static::asset('fontsizes') / 2) + ($i * static::$config['space']),
+                rand(
+                    static::$config['height'] - static::asset('fontsizes'),
+                    static::$config['height'] - (static::asset('fontsizes') / 2)
+                ),
+                $fg,
+                static::asset('fonts'),
+                static::$char[$i]
+            );
         }
         imagealphablending($new_image, false);
 
