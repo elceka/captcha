@@ -36,19 +36,19 @@ class Captcha {
     public static function instance()
     {
 
-    	if ( ! Captcha::$singleton)
-    	{
+        if ( ! Captcha::$singleton)
+        {
 
-    		self::$config = Config::get('captcha::config');
-    		self::$assets = __DIR__ . '/../../../public/assets/';
-    		self::$fonts = self::assets('fonts');
-    		self::$backgrounds = self::assets('backgrounds');
+            self::$config = Config::get('captcha::config');
+            self::$assets = __DIR__ . '/../../../public/assets/';
+            self::$fonts = self::assets('fonts');
+            self::$backgrounds = self::assets('backgrounds');
 
-    		Captcha::$singleton = new Captcha();
+            Captcha::$singleton = new Captcha();
 
-    	}
+        }
 
-    	return Captcha::$singleton;
+        return Captcha::$singleton;
 
     }
 
@@ -57,8 +57,8 @@ class Captcha {
      * It is used internally by this bundle when pointing to "/captcha" (see [vendor]\routes.php)
      * Typically, you won't use this function, but use the above img() function instead
      *
-     * @access	public
-     * @return	img
+     * @access  public
+     * @return  img
      */
     public static function create($id = null)
     {
@@ -67,7 +67,7 @@ class Captcha {
 
         Session::put('captchaHash', Hash::make(static::$config['sensitive'] === true ? static::$char : Str::lower(static::$char)));
 
-    	static::$id = $id ? $id : static::$config['id'];
+        static::$id = $id ? $id : static::$config['id'];
 
         $bg_image = static::asset('backgrounds');
 
@@ -130,26 +130,26 @@ class Captcha {
      */
     public static function assets($type = null) {
 
-    	$files = array();
+        $files = array();
 
-    	if ($type == 'fonts')
-    	{
-    		$ext = 'ttf';
-    	}
-    	elseif ($type == 'backgrounds')
-    	{
-    		$ext = 'png';
-    	}
+        if ($type == 'fonts')
+        {
+            $ext = 'ttf';
+        }
+        elseif ($type == 'backgrounds')
+        {
+            $ext = 'png';
+        }
 
-    	if ($type)
-    	{
-			foreach (glob(static::$assets . $type . '/*.' . $ext) as $filename)
-			{
-			    $files[] = $filename;
-			}
-		}
+        if ($type)
+        {
+            foreach (glob(static::$assets . $type . '/*.' . $ext) as $filename)
+            {
+                $files[] = $filename;
+            }
+        }
 
-		return $files;
+        return $files;
 
     }
 
@@ -163,24 +163,24 @@ class Captcha {
     public static function asset($type = null)
     {
 
-    	$file = null;
+        $file = null;
 
-    	if ($type == 'fonts')
-    	{
-    		$file = static::$fonts[rand(0, count(static::$fonts) - 1)];
-    	}
-    	if ($type == 'backgrounds')
-    	{
-    		$file = static::$backgrounds[rand(0, count(static::$backgrounds) - 1)];
-    	}
-    	if ($type == 'fontsizes')
-    	{
-    		$file = static::$config['fontsizes'][rand(0, count(static::$config['fontsizes']) - 1)];
-    	}
-    	if ($type == 'colors')
-    	{
-    		$file = static::$config['colors'][rand(0, count(static::$config['colors']) - 1)];
-    	}
+        if ($type == 'fonts')
+        {
+            $file = static::$fonts[rand(0, count(static::$fonts) - 1)];
+        }
+        if ($type == 'backgrounds')
+        {
+            $file = static::$backgrounds[rand(0, count(static::$backgrounds) - 1)];
+        }
+        if ($type == 'fontsizes')
+        {
+            $file = static::$config['fontsizes'][rand(0, count(static::$config['fontsizes']) - 1)];
+        }
+        if ($type == 'colors')
+        {
+            $file = static::$config['colors'][rand(0, count(static::$config['colors']) - 1)];
+        }
         return $file;
 
     }
@@ -188,16 +188,16 @@ class Captcha {
     /**
      * Checks if the supplied captcha test value matches the stored one
      * 
-     * @param	string	$value
-     * @access	public
-     * @return	bool
+     * @param   string  $value
+     * @access  public
+     * @return  bool
      */
     public static function check($value)
     {
 
-	$captchaHash = Session::get('captchaHash');
+        $captchaHash = Session::get('captchaHash');
 
-	Session::forget('captchaHash');
+        Session::forget('captchaHash');
 
         return $value != null && $captchaHash != null && Hash::check(static::$config['sensitive'] === true ? $value : Str::lower($value), $captchaHash);
 
@@ -208,12 +208,12 @@ class Captcha {
      * For example, you can use in your view something like
      * <img src="<?php echo Captcha::img(); ?>" alt="" />
      *
-     * @access	public
-     * @return	string
+     * @access  public
+     * @return  string
      */
     public static function img() {
 
-		return URL::to('captcha?' . mt_rand(100000, 999999));
+        return URL::to('captcha?' . mt_rand(100000, 999999));
 
     }
 
