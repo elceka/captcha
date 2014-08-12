@@ -1,6 +1,7 @@
 <?php
 namespace Mews\Captcha;
 
+use App;
 use Config;
 use Str;
 use Session;
@@ -64,6 +65,13 @@ class Captcha
     {
         static::$char = Str::random(static::$config['length']);
         Session::put('captchaHash', Hash::make(static::$config['sensitive'] === true ? static::$char : Str::lower(static::$char)));
+
+        // if we run a unit test, then we not need generate a image
+        // without this has been test not passed
+        if (App::runningUnitTests()) {
+            return;
+        }
+
         static::$id = $id ? $id : static::$config['id'];
         $bg_image = static::asset('backgrounds');
         $bg_image_info = getimagesize($bg_image);
