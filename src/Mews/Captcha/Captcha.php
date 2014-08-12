@@ -1,6 +1,11 @@
-<?php namespace Mews\Captcha;
+<?php
+namespace Mews\Captcha;
 
-use Config, Str, Session, Hash, URL;
+use Config;
+use Str;
+use Session;
+use Hash;
+use URL;
 
 /**
  *
@@ -15,8 +20,8 @@ use Config, Str, Session, Hash, URL;
  *
  */
 
-class Captcha {
-
+class Captcha
+{
     /**
      * @var  Captcha  singleton instance of the Useragent object
      */
@@ -35,21 +40,16 @@ class Captcha {
 
     public static function instance()
     {
-
-        if ( ! Captcha::$singleton)
-        {
-
+        if ( ! Captcha::$singleton) {
             self::$config = Config::get('captcha::config');
             self::$assets = __DIR__ . '/../../../public/assets/';
             self::$fonts = self::assets('fonts');
             self::$backgrounds = self::assets('backgrounds');
 
             Captcha::$singleton = new Captcha();
-
         }
 
         return Captcha::$singleton;
-
     }
 
     /**
@@ -62,26 +62,17 @@ class Captcha {
      */
     public static function create($id = null)
     {
-
         static::$char = Str::random(static::$config['length']);
-
         Session::put('captchaHash', Hash::make(static::$config['sensitive'] === true ? static::$char : Str::lower(static::$char)));
-
         static::$id = $id ? $id : static::$config['id'];
-
         $bg_image = static::asset('backgrounds');
-
         $bg_image_info = getimagesize($bg_image);
-        if ($bg_image_info['mime'] == 'image/jpg' || $bg_image_info['mime'] == 'image/jpeg')
-        {
+
+        if ($bg_image_info['mime'] == 'image/jpg' || $bg_image_info['mime'] == 'image/jpeg') {
             $old_image = imagecreatefromjpeg($bg_image);
-        }
-        elseif ($bg_image_info['mime'] == 'image/gif')
-        {
+        } elseif ($bg_image_info['mime'] == 'image/gif') {
             $old_image = imagecreatefromgif($bg_image);
-        }
-        elseif ($bg_image_info['mime'] == 'image/png')
-        {
+        } elseif ($bg_image_info['mime'] == 'image/png') {
             $old_image = imagecreatefrompng($bg_image);
         }
 
@@ -92,8 +83,7 @@ class Captcha {
         imagecopyresampled($new_image, $old_image, 0, 0, 0, 0, static::$config['width'], static::$config['height'], $bg_image_info[0], $bg_image_info[1]);
 
         $bg = imagecolorallocate($new_image, 255, 255, 255);
-        for ($i = 0; $i < strlen(static::$char); $i++)
-        {
+        for ($i = 0; $i < strlen(static::$char); $i++) {
             $color_cols = explode(',', static::asset('colors'));
             $fg = imagecolorallocate($new_image, trim($color_cols[0]), trim($color_cols[1]), trim($color_cols[2]));
             imagettftext(
@@ -118,7 +108,6 @@ class Captcha {
         header('Content-Disposition: inline; filename=' . static::$id . '.jpg');
         imagejpeg($new_image, null, static::$config['quality']);
         imagedestroy($new_image);
-
     }
 
     /**
@@ -128,29 +117,23 @@ class Captcha {
      * @param   string
      * @return  array
      */
-    public static function assets($type = null) {
-
+    public static function assets($type = null)
+    {
         $files = array();
 
-        if ($type == 'fonts')
-        {
+        if ($type == 'fonts') {
             $ext = 'ttf';
-        }
-        elseif ($type == 'backgrounds')
-        {
+        } elseif ($type == 'backgrounds') {
             $ext = 'png';
         }
 
-        if ($type)
-        {
-            foreach (glob(static::$assets . $type . '/*.' . $ext) as $filename)
-            {
+        if ($type) {
+            foreach (glob(static::$assets . $type . '/*.' . $ext) as $filename) {
                 $files[] = $filename;
             }
         }
 
         return $files;
-
     }
 
     /**
@@ -162,27 +145,24 @@ class Captcha {
      */
     public static function asset($type = null)
     {
-
         $file = null;
 
-        if ($type == 'fonts')
-        {
-            $file = static::$fonts[rand(0, count(static::$fonts) - 1)];
+        switch ($type) {
+            case 'fonts':
+                $file = static::$fonts[rand(0, count(static::$fonts) - 1)];
+                break;
+            case 'backgrounds':
+                $file = static::$backgrounds[rand(0, count(static::$backgrounds) - 1)];
+                break;
+            case 'fontsizes':
+                $file = static::$config['fontsizes'][rand(0, count(static::$config['fontsizes']) - 1)];
+                break;
+            case 'colors':
+                $file = static::$config['colors'][rand(0, count(static::$config['colors']) - 1)];
+                break;
         }
-        if ($type == 'backgrounds')
-        {
-            $file = static::$backgrounds[rand(0, count(static::$backgrounds) - 1)];
-        }
-        if ($type == 'fontsizes')
-        {
-            $file = static::$config['fontsizes'][rand(0, count(static::$config['fontsizes']) - 1)];
-        }
-        if ($type == 'colors')
-        {
-            $file = static::$config['colors'][rand(0, count(static::$config['colors']) - 1)];
-        }
-        return $file;
 
+        return $file;
     }
 
     /**
@@ -194,13 +174,17 @@ class Captcha {
      */
     public static function check($value)
     {
-
         $captchaHash = Session::get('captchaHash');
-
         Session::forget('captchaHash');
 
-        return $value != null && $captchaHash != null && Hash::check(static::$config['sensitive'] === true ? $value : Str::lower($value), $captchaHash);
+        if (($value != null) &&
+            ($captchaHash != null) &&
+            (Hash::check(static::$config['sensitive'] === true ? $value : Str::lower($value), $captchaHash))
+        ) {
+            return true;
+        }
 
+        return false;
     }
 
     /**
@@ -211,10 +195,8 @@ class Captcha {
      * @access  public
      * @return  string
      */
-    public static function img() {
-
+    public static function img()
+    {
         return URL::to('captcha?' . mt_rand(100000, 999999));
-
     }
-
 }
