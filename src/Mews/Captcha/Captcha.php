@@ -188,6 +188,17 @@ class Captcha
     }
 
     /**
+     * Return actual captcha value, usable for united testing
+     *
+     * @access public
+     * @return string
+     */
+    public static function getValue()
+    {
+        return static::$char;
+    }
+
+    /**
      * Returns an URL to the captcha image
      * For example, you can use in your view something like
      * <img src="<?php echo Captcha::img(); ?>" alt="" />
